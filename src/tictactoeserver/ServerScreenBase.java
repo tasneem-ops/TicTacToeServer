@@ -1,7 +1,11 @@
 package tictactoeserver;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,7 +21,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.derby.jdbc.ClientDriver;
+import static tictactoeserver.ServerConnection.con;
 
 public class ServerScreenBase extends Pane {
 
@@ -33,10 +39,9 @@ public class ServerScreenBase extends Pane {
     protected final Label noOfflineLabel;
     protected final Button buttonExit;
     protected final Button buttonMinimize;
-    Thread serviceThread;
+    ServerConnection serviceThread;
     boolean isRunning;
     boolean started;
-    public static Connection con;
 
     public ServerScreenBase() {
 
@@ -196,11 +201,9 @@ public class ServerScreenBase extends Pane {
                 btnStartStop.setText("Stop Service");
             }
         });
-        
-
     }
     private void startService(){
-        startConnectionDB();
+        serviceThread.startConnectionDB();
         if(started){
             serviceThread.resume();
         }
@@ -216,12 +219,12 @@ public class ServerScreenBase extends Pane {
             player.closeConnections();
         });
     }
-    private void startConnectionDB(){
+    public void startConnectionDB(){
         try {
             DriverManager.registerDriver(new ClientDriver());
-            con = DriverManager.getConnection("jdbc:derby://localhost:1527/players", "root", "root");
+            con = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
         } catch (SQLException ex) {
             Logger.getLogger(ServerScreenBase.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
+    } 
 }

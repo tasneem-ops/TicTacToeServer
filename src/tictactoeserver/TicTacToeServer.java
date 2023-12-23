@@ -34,8 +34,8 @@ public class TicTacToeServer extends Application {
     public void stop(){
         try {
             ((ServerScreenBase) root).stopService();
-            if(ServerScreenBase.con != null)
-                ServerScreenBase.con.close();
+            if(ServerConnection.con != null)
+                ServerConnection.con.close();
         } catch (SQLException ex) {
             Logger.getLogger(TicTacToeServer.class.getName()).log(Level.SEVERE, null, ex);
         }

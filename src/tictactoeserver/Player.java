@@ -84,6 +84,19 @@ public class Player {
         this.playerImage = playerImage;
     }
 
+    public Player(String userName, String email, boolean available, String playerImage, boolean isPlaying, long score) {
+        this.userName = userName;
+        this.email = email;
+        this.available = available;
+        this.playerImage = playerImage;
+        this.isPlaying = isPlaying;
+        this.score = score;
+        this.password = null;
+        this.salt = null;
+    }
+    
+    
+
     public Player() {
     }
 
@@ -92,6 +105,14 @@ public class Player {
         return "Player{" + "userName=" + userName + ", password=" + password + ", email=" + email + ", available=" + available + ", playerImage=" + playerImage + ", salt=" + salt + '}';
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public byte[] getSalt() {
+        return salt;
+    }
+    
    
    
 }

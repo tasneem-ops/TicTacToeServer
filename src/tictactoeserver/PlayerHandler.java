@@ -80,7 +80,7 @@ public class PlayerHandler extends Thread {
                         break;
                     case "logout":
                         logout();
-                        break;
+                        break;     
                 }
 
             } catch (IOException ex) {

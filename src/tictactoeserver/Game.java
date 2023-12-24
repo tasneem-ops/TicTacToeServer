@@ -69,22 +69,26 @@ public class Game extends Thread{
                 playerCases = new int[2][8];
         filledBoxes=new ArrayList<Integer>();
     }
-    public Game(PlayerHandler playerX ,PlayerHandler playerO){
+    public Game(PlayerHandler playerX, PlayerHandler playerO){
         this();
         this.playerX=playerX;
         this.playerO=playerO;
         playerX.suspend();
         playerO.suspend();
         gson = new GsonBuilder().create();
-        playerX.ps.println(gson.toJson(playerO.playerData));
-        playerO.ps.println(gson.toJson(playerX.playerData));
+       // playerX.ps.println(gson.toJson(playerO.playerData));
+       // playerO.ps.println(gson.toJson(playerX.playerData));
+        playerX.ps.println(gson.toJson(new Move('x', 0)));
+        playerO.ps.println(gson.toJson(new Move('o', 0)));
         this.start();
+        
     }
     @Override 
     public void run(){
         while(true){
             try {
                 String msg = playerX.dis.readLine();
+                System.out.println("after read line");
                 Move move = gson.fromJson(msg, Move.class);
                 
                 if(takeMove('x',move)==2){
@@ -107,13 +111,16 @@ public class Game extends Thread{
     public int takeMove(char playerSign,Move move){
         if(playerSign=='x'){
             converter(move.getBox());
-            if(boxEnabled[i][j]){
+            if(!boxEnabled[i][j]){
                 sendMove(playerX.ps,new Move(playerSign,99));
                 return 0;
             }
             else{
-                sendMove(playerX.ps,move);
+                //sendMove(playerX.ps,move);
+
                 sendMove(playerO.ps,move);
+                                System.out.println("After X Player Send <> Move");
+
                 converter(move.getBox());
                 updateCases(i, j);
                 movesCount++;
@@ -122,13 +129,14 @@ public class Game extends Thread{
         }
         if(playerSign=='o'){
        converter(move.getBox());
-            if(boxEnabled[i][j]){
+            if(!boxEnabled[i][j]){
                 sendMove(playerO.ps,new Move(playerSign,99));
                 return 0;
             }
             else{
-                sendMove(playerO.ps,move);
+                //sendMove(playerO.ps,move);
                 sendMove(playerX.ps,move);
+                System.out.println("After O player Send <>");
                  converter(move.getBox());
                 updateCases(i, j);
                 movesCount++;

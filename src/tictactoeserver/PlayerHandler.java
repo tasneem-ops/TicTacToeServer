@@ -67,6 +67,12 @@ public class PlayerHandler extends Thread{
                     case "accept":
                         startGame(messages);
                         break;
+                    case "getAvailableUsers":
+                        getAvailableUsers();
+                        break;
+                    case "logout":
+                        logout();
+                        break;
                 }
                 
             } catch (IOException ex) {
@@ -155,4 +161,15 @@ public class PlayerHandler extends Thread{
             }  
         });
     }
+    
+    private void getAvailableUsers(){
+        //TODO: put available users code here
+        //Recommended: put most of logic in seperate class with static methods
+    }
+    
+    private void logout(){
+        //TODO: put logout code here
+        //Recommended: put most of logic in seperate class with static methods
+    }
+    
 }

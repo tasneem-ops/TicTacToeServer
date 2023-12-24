@@ -94,7 +94,7 @@ public class ServerScreenBase extends Pane {
         btnStartStop.setMnemonicParsing(false);
         btnStartStop.setPrefHeight(51.0);
         btnStartStop.setPrefWidth(280.0);
-        btnStartStop.setStyle("-fx-background-color: CF8A9B; -fx-border-color: 111111; -fx-background-radius: 10; -fx-border-radius: 20; -fx-border-width: 5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);");
+        btnStartStop.setStyle("-fx-background-color: #CF8A9B; -fx-border-color: #CF8A9B; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-width: 5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);");
         btnStartStop.setText("Start Service");
         btnStartStop.setTextFill(javafx.scene.paint.Color.WHITE);
         btnStartStop.setFont(new Font("Segoe UI Bold", 25.0));

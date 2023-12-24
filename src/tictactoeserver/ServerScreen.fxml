@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" styleClass="backgroundColor" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="28.0" layoutY="14.0" text="Online Users" textFill="WHITE">
+         <font>
+            <Font name="Segoe UI Bold" size="40.0" />
+         </font></Label>
+      <Label fx:id="lablOfflineUsers" layoutX="529.0" layoutY="423.0" text="Offline Users" textFill="WHITE">
+         <font>
+            <Font name="Segoe UI Bold" size="25.0" />
+         </font></Label>
+      <Label fx:id="lablOnlineUsers" layoutX="159.0" layoutY="423.0" text="Online Users" textFill="WHITE">
+         <font>
+            <Font name="Segoe UI Bold" size="25.0" />
+         </font></Label>
+      <Button fx:id="btnStartStop" layoutX="249.0" layoutY="491.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="280.0" style="-fx-background-color: CF8A9B; -fx-border-color: 111111; -fx-background-radius: 10; -fx-border-radius: 20; -fx-border-width: 5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);" text="Start/Stop Service" textFill="WHITE">
+         <font>
+            <Font name="Segoe UI Bold" size="25.0" />
+         </font></Button>
+      <Line endX="89.0" layoutX="171.0" layoutY="76.0" startX="-138.0" stroke="#8a559b" strokeWidth="7.0" />
+      <Line endX="51.66455078125" endY="-2.0" layoutX="253.0" layoutY="457.0" startX="-117.0" startY="-2.0" stroke="#8a559b" strokeWidth="5.0" />
+      <Line endX="70.705078125" endY="-2.0" layoutX="607.0" layoutY="457.0" startX="-102.0" startY="-2.0" stroke="#db4f7e" strokeWidth="5.0" />
+      <PieChart fx:id="pieChart" layoutX="192.0" layoutY="88.0" prefHeight="325.0" prefWidth="395.0" />
+      <Label fx:id="noOnlineLabel" layoutX="134.0" layoutY="423.0" text="6" textFill="WHITE">
+         <font>
+            <Font name="Segoe UI Bold" size="25.0" />
+         </font>
+      </Label>
+      <Label fx:id="noOfflineLabel" layoutX="503.0" layoutY="423.0" text="3" textFill="WHITE">
+         <font>
+            <Font name="Segoe UI Bold" size="25.0" />
+         </font>
+      </Label>
+      <Button fx:id="buttonExit" layoutX="747.0" layoutY="14.0" mnemonicParsing="false" style="-fx-background-radius: 30; -fx-background-color: e8ccd5;" text="X">
+         <font>
+            <Font name="Gill Sans MT Bold Italic" size="19.0" />
+         </font>
+      </Button>
+      <Button fx:id="buttonMinimize" layoutX="708.0" layoutY="14.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="31.0" style="-fx-background-radius: 30; -fx-background-color: e8ccd5;" text="-">
+         <font>
+            <Font name="Gill Sans MT" size="19.0" />
+         </font>
+      </Button>
+   </children>
+</Pane>

@@ -5,11 +5,14 @@
  */
 package tictactoeserver;
 
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 /**
  *
@@ -17,16 +20,26 @@ import javafx.stage.Stage;
  */
 public class TicTacToeServer extends Application {
     
+    Parent root;
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
+        root = new ServerScreenBase();
         
         Scene scene = new Scene(root);
-        
+        stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
         stage.show();
     }
-
+    @Override
+    public void stop(){
+        try {
+            ((ServerScreenBase) root).stopService();
+            if(ServerConnection.con != null)
+                ServerConnection.con.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(TicTacToeServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     /**
      * @param args the command line arguments
      */

@@ -23,6 +23,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.derby.jdbc.ClientDriver;
+import static tictactoeserver.PlayerHandler.playersConnections;
 import static tictactoeserver.ServerConnection.con;
 
 public class ServerScreenBase extends Pane {
@@ -88,6 +89,9 @@ public class ServerScreenBase extends Pane {
         lablOnlineUsers.setText("Online Users");
         lablOnlineUsers.setTextFill(javafx.scene.paint.Color.WHITE);
         lablOnlineUsers.setFont(new Font("Segoe UI Bold", 25.0));
+        lablOnlineUsers.setOnMouseClicked((e)->{
+            Game game = new Game(playersConnections.get(0), playersConnections.get(1));
+        });
 
         btnStartStop.setLayoutX(249.0);
         btnStartStop.setLayoutY(491.0);
@@ -201,6 +205,8 @@ public class ServerScreenBase extends Pane {
                 btnStartStop.setText("Stop Service");
             }
         });
+        
+        
     }
     private void startService(){
         serviceThread.startConnectionDB();

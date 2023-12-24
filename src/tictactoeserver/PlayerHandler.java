@@ -157,10 +157,12 @@ public class PlayerHandler extends Thread{
                 player.ps.println(responseJSon1);
                 this.ps.println(responseJSon2);
                 
-                //GameSession game = new GameSession(player, this);
+                Game game = new Game(player, this);
             }  
         });
     }
+    
+    
     
     private void getAvailableUsers(){
         //TODO: put available users code here

@@ -170,8 +170,9 @@ public class PlayerHandler extends Thread {
     }
 
     private void getAvailableUsers() {
+        System.out.println("Getting Available Users");
         try {
-            psAvaliableUsers = ServerConnection.con.prepareStatement("SELECT * FROM PLAYER WHERE AVALIABLE=TRUE and isplaying=FALSE");
+            psAvaliableUsers = ServerConnection.con.prepareStatement("SELECT * FROM PLAYER WHERE AVAILABLE=TRUE");
             ResultSet rs = psAvaliableUsers.executeQuery();
             while (rs.next()) {
                 Player p1 = new Player();
@@ -182,9 +183,10 @@ public class PlayerHandler extends Thread {
                 avaliablePlayerList.add(p1);
                
             }
+            System.out.println("Available users are" + avaliablePlayerList.toString());
            ArrayList<String> response = new ArrayList<>();
              Gson gson = new GsonBuilder().create();
-                response.add("AvaliableUsers");
+                response.add("AvailableUsers");
                 String playerJson = gson.toJson(avaliablePlayerList);
                 response.add(playerJson);
                 String responseJSon = gson.toJson(response);

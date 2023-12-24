@@ -67,7 +67,7 @@ public class PlayerHandler extends Thread {
                         loginUser(messages.get(1));
                         break;
                     case "signup":
-                        signUpUser();
+                        signUpUser(messages.get(1));
                         break;
                     case "request":
                         requestToPlay(messages);
@@ -129,9 +129,21 @@ public class PlayerHandler extends Thread {
         }
     }
 
-    private void signUpUser() {
-        //TODO: put signup code here
-        //Recommended: put most of logic in seperate class with static methods
+    private void signUpUser(String playerData) {
+        try {
+            SignUp.signUpUser(playerData);
+            System.out.println("signupresponse server");
+            ArrayList<String> response = new ArrayList<>();
+                response.add("signup");
+                response.add("Success");
+                Gson gson = new GsonBuilder().create();
+                String responseJSon = gson.toJson(response);
+                ps.println(responseJSon);
+        } catch (NoSuchAlgorithmException ex) {
+            ex.printStackTrace();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void requestToPlay(ArrayList<String> request) {

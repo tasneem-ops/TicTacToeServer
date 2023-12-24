@@ -11,10 +11,27 @@ package tictactoeserver;
  */
 class Move {
     private char sign;
-    private int move;
+    private int box;
     public Move(){}
-    public Move(char sign,int move){
+    public Move(char sign,int box){
         this.sign=sign;
-        this.move=move;
+        this.box=box;
     }
+
+    public char getSign() {
+        return sign;
+    }
+
+    public void setSign(char sign) {
+        this.sign = sign;
+    }
+
+    public int getBox() {
+        return box;
+    }
+
+    public void setBox(int box) {
+        this.box = box;
+    }
+    
 }

@@ -32,6 +32,9 @@ public class Login {
             byte[] salt = rs.getBytes("salt");
             String hashedSavedPassword = rs.getString("password");
             String hashedInputPassword = hashPassword(data.getPassword(), salt);
+            System.out.println("Login Salt is:  " + salt.toString());
+            System.out.println("Login saved SHA-1 is:  " + hashedSavedPassword);
+            System.out.println("Login generated SHA-1 is:  " + hashedInputPassword);
             if(hashedSavedPassword.equals(hashedInputPassword)){
                 Player player = getDataFromResultSet(rs);
                 return player;

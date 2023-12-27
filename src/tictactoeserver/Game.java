@@ -50,6 +50,7 @@ public class Game extends Thread{
     int player2ScoreCount = 0;
     int i;
     int j;
+    int gameState;
 
 
     private PlayerHandler playerX;
@@ -59,9 +60,13 @@ public class Game extends Thread{
     
     private Game(){
                        boxEnabled = new boolean[3][3];
-
+                       
         for (int i = 0; i < 3; i++) {
+                            System.out.println("first loop");
+
             for (int j = 0; j < 3; j++) {
+                                            System.out.println("second loop");
+
                 boxEnabled[i][j] = true;
             }
         }
@@ -73,13 +78,17 @@ public class Game extends Thread{
         this();
         this.playerX=playerX;
         this.playerO=playerO;
-        playerX.suspend();
-        playerO.suspend();
+       playerX.suspend();
+       playerO.suspend();
         gson = new GsonBuilder().create();
        // playerX.ps.println(gson.toJson(playerO.playerData));
        // playerO.ps.println(gson.toJson(playerX.playerData));
-        playerX.ps.println(gson.toJson(new Move('x', 0)));
-        playerO.ps.println(gson.toJson(new Move('o', 0)));
+      // playerX.ps.println("you are x");
+       //playerO.ps.println("you are o");
+        playerX.ps.println(gson.toJson(new Move('x',0)));
+        playerO.ps.println(gson.toJson(new Move('o',0)));
+                System.out.println("test");
+
         this.start();
         
     }
@@ -89,6 +98,10 @@ public class Game extends Thread{
             try {
                 String msg = playerX.dis.readLine();
                 System.out.println("after read line");
+                                System.out.println(msg);
+                if(!msg.startsWith("{")){
+                    msg = "{"+msg;
+                }
                 Move move = gson.fromJson(msg, Move.class);
                 
                 if(takeMove('x',move)==2){
@@ -97,6 +110,9 @@ public class Game extends Thread{
                     break;
                 }
                 msg = playerO.dis.readLine();
+                if(!msg.startsWith("{")){
+                    msg = "{"+msg;
+                }
                 move = gson.fromJson(msg, Move.class);
                 if(takeMove('o',move)==2){
                     playerX.resume();
@@ -109,7 +125,49 @@ public class Game extends Thread{
         }
     }
     public int takeMove(char playerSign,Move move){
+        int returner=1;
+        System.out.println("inside take move");
+        converter(move.getBox());
+                updateCases(i, j);
+                movesCount++;
+        if (movesCount >= 5) {
+            System.out.println("inside if condition moves ="+movesCount);
+                winnerData = checkWinner();
+                if (winnerData[0] == -1) {
+                    if (movesCount == 9) {
+           //     sendMove(playerX.ps,new Move('d',11));
+           //     sendMove(playerO.ps,new Move('d',11));
+           gameState = 11;
+           sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),11));
+                      sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),11));
+
+           return 2;
+                    } else {
+                     //  isX = !isX;
+                     //   boxEnabled[i][j] = false;
+                    }
+                } else if (winnerData[0] == 0) {
+                    System.out.println("player x is winning");
+             //   sendMove(playerX.ps,new Move('w',10));
+             //   sendMove(playerO.ps,new Move('l',12));
+             gameState = 12;
+              sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),10));
+                      sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),12));
+           return 2;
+                } else if (winnerData[0] == 1) {
+                                        System.out.println("player o is winning");
+
+             //       sendMove(playerX.ps,new Move('l',12));
+             //       sendMove(playerO.ps,new Move('w',10));
+             gameState = 10;
+              sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),12));
+              sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),10));
+           return 2;
+                }
+
+            }
         if(playerSign=='x'){
+                    System.out.println("player sign is x");
             converter(move.getBox());
             if(!boxEnabled[i][j]){
                 sendMove(playerX.ps,new Move(playerSign,99));
@@ -117,17 +175,27 @@ public class Game extends Thread{
             }
             else{
                 //sendMove(playerX.ps,move);
+            if(gameState==10){
+                move.setGameState(10);
+            }
+            else if(gameState==11){
+                            move.setGameState(11);
 
-                sendMove(playerO.ps,move);
+            }else if(gameState==12){
+                            move.setGameState(12);
+
+            }
+                                        sendMove(playerO.ps,move);
+
                                 System.out.println("After X Player Send <> Move");
 
-                converter(move.getBox());
-                updateCases(i, j);
-                movesCount++;
+                
 
             }
         }
         if(playerSign=='o'){
+                                System.out.println("player sign is o");
+
        converter(move.getBox());
             if(!boxEnabled[i][j]){
                 sendMove(playerO.ps,new Move(playerSign,99));
@@ -135,39 +203,27 @@ public class Game extends Thread{
             }
             else{
                 //sendMove(playerO.ps,move);
+                
+                if(gameState==10){
+                move.setGameState(12);
+            }
+            else if(gameState==11){
+                            move.setGameState(11);
+
+            }else if(gameState==10){
+                            move.setGameState(12);
+
+            }
+                
                 sendMove(playerX.ps,move);
                 System.out.println("After O player Send <>");
-                 converter(move.getBox());
-                updateCases(i, j);
-                movesCount++;
+//                 converter(move.getBox());
+//                updateCases(i, j);
+//                movesCount++;
 
             }
         }
-         if (movesCount >= 5) {
-                winnerData = checkWinner();
-                if (winnerData[0] == -1) {
-                    if (movesCount == 9) {
-                sendMove(playerX.ps,new Move('d',11));
-                sendMove(playerO.ps,new Move('d',11));
-                return 2;
-                    } else {
-                        isX = !isX;
-                        boxEnabled[i][j] = false;
-                    }
-                } else if (winnerData[0] == 0) {
-                sendMove(playerX.ps,new Move('w',10));
-                sendMove(playerO.ps,new Move('l',12));
-                return 2;
-                } else if (winnerData[0] == 1) {
-                    sendMove(playerX.ps,new Move('l',12));
-                    sendMove(playerO.ps,new Move('w',10));
-                return 2;
-                }
-
-            } else {
-                isX = !isX;
-                boxEnabled[i][j] = false;
-            }
+         isX=!isX;
          return 1;
     }
     private void sendMove(PrintStream ps,Move move){

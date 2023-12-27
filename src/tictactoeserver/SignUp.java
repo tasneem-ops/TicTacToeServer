@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.DatatypeConverter;
-import org.apache.derby.client.am.ClientConnection;
+import org.apache.derby.jdbc.ClientDriver;
 import static tictactoeserver.ServerConnection.con;
 
 /**

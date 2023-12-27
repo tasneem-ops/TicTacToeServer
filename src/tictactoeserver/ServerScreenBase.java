@@ -90,6 +90,10 @@ public class ServerScreenBase extends Pane {
         lablOnlineUsers.setTextFill(javafx.scene.paint.Color.WHITE);
         lablOnlineUsers.setFont(new Font("Segoe UI Bold", 25.0));
         lablOnlineUsers.setOnMouseClicked((e)->{
+            System.out.println(playersConnections.size()+"this is the size of the array");
+            System.out.println(playersConnections.get(0).toString());
+                        System.out.println(playersConnections.get(1).toString());
+
             Game game = new Game(playersConnections.get(0), playersConnections.get(1));
         });
 
@@ -228,7 +232,7 @@ public class ServerScreenBase extends Pane {
     public void startConnectionDB(){
         try {
             DriverManager.registerDriver(new ClientDriver());
-            con = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
+            con = DriverManager.getConnection("jdbc:derby://localhost:1527/DBforTicTacToe", "a", "a");
         } catch (SQLException ex) {
             Logger.getLogger(ServerScreenBase.class.getName()).log(Level.SEVERE, null, ex);
         }

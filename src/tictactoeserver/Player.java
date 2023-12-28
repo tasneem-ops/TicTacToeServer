@@ -112,7 +112,16 @@ public class Player {
     public byte[] getSalt() {
         return salt;
     }
-    
+    public Player(Player player) {
+        this.userName = player.userName;
+        this.available = player.available;
+        this.email = player.email;
+        this.isPlaying = player.isPlaying;
+        this.score = player.score;
+        this.playerImage = player.playerImage;
+        this.password = player.password;
+        this.salt = player.salt;
+    }
    
    
 }

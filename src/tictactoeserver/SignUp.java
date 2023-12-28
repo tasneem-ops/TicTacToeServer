@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.derby.client.am.ClientConnection;
+import static tictactoeserver.PlayerHandler.psAvaliableUsers;
 import static tictactoeserver.ServerConnection.con;
 
 /**
@@ -26,21 +27,31 @@ import static tictactoeserver.ServerConnection.con;
 public class SignUp {
 
     private static byte[] salt;
-    public static void signUpUser(String playerData) throws NoSuchAlgorithmException, SQLException{
+    public static int signUpUser(String playerData) throws NoSuchAlgorithmException, SQLException{
         Gson gson = new GsonBuilder().create();
         Player player = gson.fromJson(playerData, Player.class);
+        System.out.println("Signing Up..");
+        boolean uniqueUsername = validateNoDuplicateUsername(player);
+        boolean uniqueEmail = validateNoDuplicateEmail(player);
+        System.out.println("Done Validation");
+        if(!uniqueUsername)
+            return 1;
+        else if(! uniqueEmail)
+            return 2;
         System.out.println(player.toString());
-        player.setPassword(getPassword(player.getPassword()));
+        player.setPassword(getHashedPassword(player.getPassword()));
         player.setSalt(salt);
         insertToDatabase(player);
+        return 0;
     }
 
-    private static String getPassword(String password) throws NoSuchAlgorithmException {
+    private static String getHashedPassword(String password) throws NoSuchAlgorithmException {
         String hashedPassword = null;
-            String algorithm = "SHA-1";
-            salt = createSalt();
-             hashedPassword = hashPassword(password, algorithm, salt);
-            
+        String algorithm = "SHA-1";
+        salt = createSalt();
+         hashedPassword = hashPassword(password, algorithm, salt);
+        System.out.println("Signup Salt is:  " + salt.toString());
+        System.out.println("Signup SHA-1 is:  " + hashedPassword);
 
         return hashedPassword;
     }
@@ -49,8 +60,7 @@ public class SignUp {
         int resultSet = -1;
         
             PreparedStatement statement = con.prepareStatement(
-                    "INSERT INTO Player (USERNAME, EMAIL, PASSWORD, PLAYERSCORE, AVAILABLE, PLAYERIMAGE, "
-                    + "SALT, isPlaying) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    "INSERT INTO Player (USERNAME, EMAIL, PASSWORD, SCORE, AVAILABLE, PLAYERIMAGE, SALT, isPlaying) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             statement.setString(1, player.getUserName());
             statement.setString(2, player.getEmail());
             statement.setString(3, player.getPassword());
@@ -79,6 +89,26 @@ public class SignUp {
         SecureRandom random = new SecureRandom();
         random.nextBytes(bytes);
         return bytes;
+    }
+    
+    private static boolean validateNoDuplicateUsername(Player player) throws SQLException{
+        PreparedStatement pst = ServerConnection.con.prepareStatement("SELECT * FROM PLAYER WHERE USERNAME=?");
+        pst.setString(1, player.getUserName());
+        ResultSet rs = pst.executeQuery();
+        if(rs.next())
+            return false;
+        else
+            return true;
+    }
+    
+    private static boolean validateNoDuplicateEmail(Player player) throws SQLException{
+        PreparedStatement pst = ServerConnection.con.prepareStatement("SELECT * FROM PLAYER WHERE EMAIL=?");
+        pst.setString(1, player.getEmail());
+        ResultSet rs = pst.executeQuery();
+        if(rs.next())
+            return false;
+        else
+            return true;
     }
 
 }

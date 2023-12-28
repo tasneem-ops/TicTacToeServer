@@ -30,8 +30,10 @@ public class SignUp {
     public static int signUpUser(String playerData) throws NoSuchAlgorithmException, SQLException{
         Gson gson = new GsonBuilder().create();
         Player player = gson.fromJson(playerData, Player.class);
+        System.out.println("Signing Up..");
         boolean uniqueUsername = validateNoDuplicateUsername(player);
         boolean uniqueEmail = validateNoDuplicateEmail(player);
+        System.out.println("Done Validation");
         if(!uniqueUsername)
             return 1;
         else if(! uniqueEmail)

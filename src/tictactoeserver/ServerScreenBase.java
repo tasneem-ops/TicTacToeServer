@@ -1,5 +1,7 @@
 package tictactoeserver;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -7,6 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -222,6 +225,10 @@ public class ServerScreenBase extends Pane {
     public void stopService(){
         serviceThread.suspend();
         PlayerHandler.playersConnections.forEach(player -> {
+            ArrayList<String> response = new ArrayList<>();
+            response.add("shutdown");
+            Gson gson = new GsonBuilder().create();
+            String responseJSon = gson.toJson(response);
             player.closeConnections();
         });
     }

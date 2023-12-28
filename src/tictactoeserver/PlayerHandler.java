@@ -184,14 +184,16 @@ public class PlayerHandler extends Thread {
         String player2UserName = request.get(1);
         System.out.println("Size of Vector:" + playersConnections.size());
         playersConnections.forEach(player -> {
-            if (player.playerData.getUserName().equals(player2UserName)) {
-                System.out.println("Found Player with username:" + player2UserName);
-                ArrayList<String> response = new ArrayList<>();
-                response.add("request");
-                response.add(this.playerData.getUserName());
-                Gson gson = new GsonBuilder().create();
-                String responseJSon = gson.toJson(response);
-                player.ps.println(responseJSon);
+            if(player.playerData != null){
+                if (player.playerData.getUserName().equals(player2UserName)) {
+                    System.out.println("Found Player with username:" + player2UserName);
+                    ArrayList<String> response = new ArrayList<>();
+                    response.add("request");
+                    response.add(this.playerData.getUserName());
+                    Gson gson = new GsonBuilder().create();
+                    String responseJSon = gson.toJson(response);
+                    player.ps.println(responseJSon);
+                }
             }
         });
     }
@@ -199,20 +201,12 @@ public class PlayerHandler extends Thread {
     private void startGame(ArrayList<String> request) {
         String player1UserName = request.get(1);
         playersConnections.forEach(player -> {
-            if (player.playerData.getUserName().equals(player1UserName)) {
-                ArrayList<String> response1 = new ArrayList<>();
-                ArrayList<String> response2 = new ArrayList<>();
-                response1.add("startGame");
-                response2.add("startGame");
-                response1.add(this.playerData.getUserName());
-                response2.add(player.playerData.getUserName());
-                Gson gson = new GsonBuilder().create();
-                String responseJSon1 = gson.toJson(response1);
-                String responseJSon2 = gson.toJson(response2);
-                player.ps.println(responseJSon1);
-                this.ps.println(responseJSon2);
-
+            if(player.playerData != null){
+                if (player.playerData.getUserName().equals(player1UserName)) {
+                sendStartGame(player, this);
+                updateInDB(player, this);
                 Game game = new Game(player, this);
+            }
             }
         });
     }
@@ -238,6 +232,7 @@ public class PlayerHandler extends Thread {
                 String playerJson = gson.toJson(avaliablePlayerList);
                 response.add(playerJson);
                 String responseJSon = gson.toJson(response);
+                System.out.println("Gson Response " + responseJSon);
                 ps.println(responseJSon);
         } catch (SQLException ex) {
             Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -246,13 +241,15 @@ public class PlayerHandler extends Thread {
     private void sendRefuseMessage(ArrayList<String> request){
         String player1UserName = request.get(1);
         playersConnections.forEach(player -> {
-            if (player.playerData.getUserName().equals(player1UserName)) {
-                ArrayList<String> response = new ArrayList<>();
-                response.add("refuse");
-                response.add(this.playerData.getUserName());
-                Gson gson = new GsonBuilder().create();
-                String responseJSon = gson.toJson(response);
-                player.ps.println(responseJSon);
+            if(player.playerData != null){
+                if (player.playerData.getUserName().equals(player1UserName)) {
+                    ArrayList<String> response = new ArrayList<>();
+                    response.add("refuse");
+                    response.add(this.playerData.getUserName());
+                    Gson gson = new GsonBuilder().create();
+                    String responseJSon = gson.toJson(response);
+                    player.ps.println(responseJSon);
+                }
             }
         });
     }
@@ -261,5 +258,34 @@ public class PlayerHandler extends Thread {
         //TODO: put logout code here
         //Recommended: put most of logic in seperate class with static methods
     }
-
+    private void sendStartGame(PlayerHandler player1, PlayerHandler player2){
+        ArrayList<String> response1 = new ArrayList<>();
+        ArrayList<String> response2 = new ArrayList<>();
+        response1.add("startGame");
+        response2.add("startGame");
+        response1.add(player2.playerData.getUserName());
+        response2.add(player1.playerData.getUserName());
+        Gson gson = new GsonBuilder().create();
+        String responseJSon1 = gson.toJson(response1);
+        String responseJSon2 = gson.toJson(response2);
+        player1.ps.println(responseJSon1);
+        player2.ps.println(responseJSon2);
+    }
+    
+    private void updateInDB(PlayerHandler player1, PlayerHandler player2){
+        try {
+            PreparedStatement pst1 = ServerConnection.con.prepareStatement("update PLAYER SET ISPLAYING = ? WHERE USERNAME = ?");
+            PreparedStatement pst2 = ServerConnection.con.prepareStatement("update PLAYER SET ISPLAYING = ? WHERE USERNAME = ?");
+            pst1.setBoolean(1, true);
+            pst1.setString(2, player1.playerData.getUserName());
+            pst2.setBoolean(1, true);
+            pst2.setString(2, player2.playerData.getUserName());
+            int res1 = pst1.executeUpdate();
+            int res2 = pst2.executeUpdate();
+            System.out.println("Columns Updated:  "+ res1 + ""+ res2);
+        } catch (SQLException ex) {
+            Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
 }

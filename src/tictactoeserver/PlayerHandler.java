@@ -30,6 +30,8 @@ public class PlayerHandler extends Thread {
 
     ArrayList<Player> avaliablePlayerList;
     static PreparedStatement psAvaliableUsers;
+    static PreparedStatement psUpdateOnlineUsers;
+
     Player playerData;
     DataInputStream dis;
     PrintStream ps;
@@ -41,6 +43,7 @@ public class PlayerHandler extends Thread {
     }
 
     public PlayerHandler(Socket socket) {
+       
         avaliablePlayerList = new ArrayList<Player>();
         try {
             this.socket = socket;
@@ -62,6 +65,7 @@ public class PlayerHandler extends Thread {
                 msgArray = dis.readLine();
                 Gson gson = new GsonBuilder().create();
                 ArrayList<String> messages = gson.fromJson(msgArray, ArrayList.class);
+                System.out.println(messages);
                 String msg = messages.get(0);
                 switch (msg) {
                     case "login":
@@ -223,7 +227,7 @@ public class PlayerHandler extends Thread {
                 p1.setPlayerImage(rs.getString("playerimage"));
                 p1.setScore(rs.getLong("score"));
                 avaliablePlayerList.add(p1);
-               
+
             }
             System.out.println("Available users are" + avaliablePlayerList.toString());
            ArrayList<String> response = new ArrayList<>();
@@ -255,6 +259,23 @@ public class PlayerHandler extends Thread {
     }
 
     private void logout() {
+        if(playerData!=null){
+        try {
+                        psUpdateOnlineUsers = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=FALSE  WHERE Username=" + playerData.getUserName());
+            psUpdateOnlineUsers.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        }
+        playersConnections.remove(playersConnections.get(playersConnections.indexOf(this)));
+        
+//         ArrayList<String> requestArray = new ArrayList<String>();
+//            requestArray.add("exit");
+//            Gson gson = new GsonBuilder().create();
+//            String request = gson.toJson(requestArray);
+//      
+        ps.println("exit");
+        closeConnections();
         //TODO: put logout code here
         //Recommended: put most of logic in seperate class with static methods
     }

@@ -46,7 +46,7 @@ public class ServerConnection extends Thread{
     public void startConnectionDB(){
         try {
             DriverManager.registerDriver(new ClientDriver());
-            con = DriverManager.getConnection("jdbc:derby://localhost:1527/DBforTicTacToe", "a", "a");
+            con = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
         } catch (SQLException ex) {
             Logger.getLogger(ServerScreenBase.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -31,7 +31,8 @@ public class PlayerHandler extends Thread {
     ArrayList<Player> avaliablePlayerList;
     static PreparedStatement psAvaliableUsers;
     static PreparedStatement psUpdateOnlineUsers;
-
+    public boolean startedGame;
+    public boolean isPlayer1;
     Player playerData;
     DataInputStream dis;
     PrintStream ps;
@@ -66,6 +67,8 @@ public class PlayerHandler extends Thread {
                 Gson gson = new GsonBuilder().create();
                 ArrayList<String> messages = gson.fromJson(msgArray, ArrayList.class);
                 System.out.println(messages);
+                if(messages == null)
+                    continue;
                 String msg = messages.get(0);
                 switch (msg) {
                     case "login":
@@ -88,6 +91,9 @@ public class PlayerHandler extends Thread {
                         break;
                     case "refuse":
                         sendRefuseMessage(messages);
+                        break;
+                    case "startedGame":
+                        startGameOnServer(messages.get(1));
                         break;
                 }
 
@@ -217,6 +223,8 @@ public class PlayerHandler extends Thread {
                 sendStartGame(player, this);
                 updateInDB(player, this);
                 Game game = new Game(player, this);
+                player.isPlayer1 = true;
+                this.isPlayer1 = false;
             }
             }
         });
@@ -268,7 +276,8 @@ public class PlayerHandler extends Thread {
     private void logout() {
         if(playerData!=null){
         try {
-                        psUpdateOnlineUsers = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=FALSE  WHERE Username=" + playerData.getUserName());
+            psUpdateOnlineUsers = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=FALSE  WHERE Username= ?");
+            psUpdateOnlineUsers.setString(1, playerData.getUserName());
             psUpdateOnlineUsers.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -314,6 +323,29 @@ public class PlayerHandler extends Thread {
         } catch (SQLException ex) {
             Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public void startGameOnServer(String playerUsername){
+        System.out.println("Inside StartGame On Server");
+        startedGame = true;
+        System.out.println("Flag "+ playerData.getUserName()+ "  " + startedGame);
+//        if(isPlayer1){
+//            System.out.println("I am Player 1 " + playerData.getUserName() );
+//            while(true){
+//            playersConnections.forEach(player -> {
+//            if(player.playerData != null){
+//                if (player.playerData.getUserName().equals(playerUsername)) {
+//                    System.out.println("I am " + playerData.getUserName() + "And Waiting for "+ playerUsername + "to join");
+//                    if(player.startedGame){
+//                        Game game = new Game(this, player);
+//                        break;
+//                    }
+//                }
+//            }
+//            });
+//            }
+//        }
+        
     }
     
 }

@@ -285,17 +285,17 @@ public class ServerScreenBase extends Pane {
         });
     }
 
-     public void startConnectionDB(){
-        try {
-            DriverManager.registerDriver(new ClientDriver());
-            con = DriverManager.getConnection("jdbc:derby://localhost:1527/DBforTicTacToe", "a", "a");
-                    System.out.println("Database connection established successfully.");
-
-        } catch (SQLException ex) {
-            Logger.getLogger(ServerScreenBase.class.getName()).log(Level.SEVERE, null, ex);
-                    System.err.println("Error connecting to the database: " + ex.getMessage());
-        }
-    }
+//     public void startConnectionDB(){
+//        try {
+//            DriverManager.registerDriver(new ClientDriver());
+//            con = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
+//                    System.out.println("Database connection established successfully.");
+//
+//        } catch (SQLException ex) {
+//            Logger.getLogger(ServerScreenBase.class.getName()).log(Level.SEVERE, null, ex);
+//                    System.err.println("Error connecting to the database: " + ex.getMessage());
+//        }
+//    }
 }
 
 

@@ -91,29 +91,32 @@ public class Game extends Thread{
        // playerO.ps.println(gson.toJson(playerX.playerData));
       // playerX.ps.println("you are x");
        //playerO.ps.println("you are o");
-        playerX.ps.println(gson.toJson(new Move('x',0)));
-        playerO.ps.println(gson.toJson(new Move('o',0)));
-                System.out.println("test");
+//        playerX.ps.println(gson.toJson(new Move('x',0)));
+//        playerO.ps.println(gson.toJson(new Move('o',0)));
+//                System.out.println("test");
 
         this.start();
         
     }
     @Override 
     public void run(){
+        System.out.println("Inside Game Class");
+        while (true) {
+            if (playerX.startedGame && playerO.startedGame) {
+                break;
+            }
+        }
+        System.out.println("Starting...");
+        playerX.suspend();
+        playerO.suspend();
+        playerX.ps.println(gson.toJson(new Move('x',0)));
+        playerO.ps.println(gson.toJson(new Move('o',0)));
+        System.out.println("test");
         while(true){
             try {
-                System.out.println("Inside Game Class");
-                while (true) {
-                    if (playerX.startedGame && playerO.startedGame) {
-                        break;
-                    }
-                }
-                System.out.println("Starting...");
-                playerX.suspend();
-                playerO.suspend();
                 String msg = playerX.dis.readLine();
                 System.out.println("after read line");
-                                System.out.println(msg);
+                System.out.println(msg);
                 if(!msg.startsWith("{")){
                     msg = "{"+msg; // TODO Bougs here not readable code
                 }
@@ -138,6 +141,7 @@ public class Game extends Thread{
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+                //handle exception by closing game and set other as winner 
             }
         }
     }

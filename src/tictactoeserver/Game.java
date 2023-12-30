@@ -59,27 +59,33 @@ public class Game extends Thread{
     Gson gson;
     
     private Game(){
-                       boxEnabled = new boolean[3][3];
-                       
+        boxEnabled = new boolean[3][3];
+
         for (int i = 0; i < 3; i++) {
-                            System.out.println("first loop");
+            System.out.println("first loop");
 
             for (int j = 0; j < 3; j++) {
-                                            System.out.println("second loop");
+                System.out.println("second loop");
 
                 boxEnabled[i][j] = true;
             }
         }
-                winnerData = new int[2];
-                playerCases = new int[2][8];
+        winnerData = new int[2];
+        playerCases = new int[2][8];
         filledBoxes=new ArrayList<Integer>();
     }
     public Game(PlayerHandler playerX, PlayerHandler playerO){
         this();
+//        System.out.println("Inside Game Class");
+//        while(true){
+//            if(playerX.startedGame && playerO.startedGame)
+//                break;
+//        }
+//        System.out.println("Starting...");
         this.playerX=playerX;
         this.playerO=playerO;
-       playerX.suspend();
-       playerO.suspend();
+//       playerX.suspend();
+//       playerO.suspend();
         gson = new GsonBuilder().create();
        // playerX.ps.println(gson.toJson(playerO.playerData));
        // playerO.ps.println(gson.toJson(playerX.playerData));
@@ -96,6 +102,15 @@ public class Game extends Thread{
     public void run(){
         while(true){
             try {
+                System.out.println("Inside Game Class");
+                while (true) {
+                    if (playerX.startedGame && playerO.startedGame) {
+                        break;
+                    }
+                }
+                System.out.println("Starting...");
+                playerX.suspend();
+                playerO.suspend();
                 String msg = playerX.dis.readLine();
                 System.out.println("after read line");
                                 System.out.println(msg);
@@ -107,6 +122,7 @@ public class Game extends Thread{
                 if(takeMove('x',move)==2){
                     playerX.resume();
                     playerO.resume();
+                    resetFlags();
                     break;
                 }
                 msg = playerO.dis.readLine();
@@ -117,6 +133,7 @@ public class Game extends Thread{
                 if(takeMove('o',move)==2){
                     playerX.resume();
                     playerO.resume();
+                    resetFlags();
                     break;
                 }
             } catch (IOException ex) {
@@ -290,5 +307,12 @@ public class Game extends Thread{
             case 9:i=2; j=2; break;
 
         }
+    }
+    private void resetFlags(){
+        System.out.println("Resetting Flags");
+        playerX.isPlayer1 = false;
+        playerO.isPlayer1 = false;
+        playerX.startedGame = false;
+        playerO.startedGame = false;
     }
 }

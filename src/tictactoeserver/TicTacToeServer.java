@@ -24,6 +24,7 @@ public class TicTacToeServer extends Application {
     Parent root;
     @Override
     public void start(Stage stage) throws Exception {
+        
         root = new ServerScreenBase();
         //to can move the screen  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         root.setOnMousePressed(event -> {
@@ -36,6 +37,7 @@ public class TicTacToeServer extends Application {
             stage.setY(event.getScreenY() - yOffset);
         });
         //to can move the screen  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
         Scene scene = new Scene(root);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);

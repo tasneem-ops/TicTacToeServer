@@ -90,10 +90,14 @@ public class Game extends Thread{
         this.playerX=playerX;
         this.playerO=playerO;
         try {
-            enterPlayerX = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=TRUE  WHERE Username=" + playerX.playerData.getUserName());
-            enterPlayerO = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=TRUE  WHERE Username=" + playerX.playerData.getUserName());
-            exitPlayerX = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=TRUE,Isplaying=FALSE  WHERE Username=" + playerX.playerData.getUserName());
-            exitPlayerO = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=TRUE,Isplaying=FALSE  WHERE Username=" + playerO.playerData.getUserName());
+            enterPlayerX = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=TRUE  WHERE Username=?");
+            enterPlayerO = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=TRUE  WHERE Username=?");
+            exitPlayerX = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=TRUE,Isplaying=FALSE  WHERE Username=?");
+            exitPlayerO = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=TRUE,Isplaying=FALSE  WHERE Username=?");
+            enterPlayerX.setString(0, playerX.playerData.getUserName());
+            enterPlayerO.setString(0,playerO.playerData.getUserName() );
+            exitPlayerX.setString(0, playerX.playerData.getUserName());
+            exitPlayerO.setString(0,playerO.playerData.getUserName() );
             enterPlayerX.executeUpdate();
             enterPlayerO.executeUpdate();
 
@@ -335,7 +339,6 @@ public class Game extends Thread{
             case 7:i=2; j=0; break;
             case 8:i=2; j=1; break;
             case 9:i=2; j=2; break;
-
         }
     }
 }

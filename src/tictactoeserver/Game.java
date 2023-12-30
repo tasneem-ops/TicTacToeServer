@@ -115,7 +115,7 @@ public class Game extends Thread{
                 System.out.println("after read line");
                                 System.out.println(msg);
                 if(!msg.startsWith("{")){
-                    msg = "{"+msg;
+                    msg = "{"+msg; // TODO Bougs here not readable code
                 }
                 Move move = gson.fromJson(msg, Move.class);
                 

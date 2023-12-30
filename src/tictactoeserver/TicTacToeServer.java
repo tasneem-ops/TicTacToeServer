@@ -23,7 +23,9 @@ public class TicTacToeServer extends Application {
     Parent root;
     @Override
     public void start(Stage stage) throws Exception {
+        
         root = new ServerScreenBase();
+        
         
         Scene scene = new Scene(root);
         stage.initStyle(StageStyle.UNDECORATED);

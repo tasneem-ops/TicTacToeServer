@@ -5,7 +5,7 @@
             <url>src/tictactoeserver/TicTacToeServer.java</url>
             <bookmark id="1">
                 <name/>
-                <line>26</line>
+                <line>37</line>
                 <key/>
             </bookmark>
         </file>
@@ -21,8 +21,6 @@
             <file>file:/C:/Users/ghoneim/OneDrive/Desktop/the%20server/TicTacToeServer/src/tictactoeserver/Player.java</file>
             <file>file:/C:/Users/ghoneim/OneDrive/Desktop/the%20server/TicTacToeServer/src/tictactoeserver/PlayerHandler.java</file>
         </group>
-        <group name="TicTacToeBestTeam">
-            <file>file:/D:/javaproject/TicTacToeServer/src/tictactoeserver/ServerConnection.java</file>
-        </group>
+        <group name="TicTacToeBestTeam"/>
     </open-files>
 </project-private>

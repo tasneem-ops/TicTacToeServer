@@ -67,6 +67,8 @@ public class PlayerHandler extends Thread {
                 Gson gson = new GsonBuilder().create();
                 ArrayList<String> messages = gson.fromJson(msgArray, ArrayList.class);
                 System.out.println(messages);
+                if(messages == null)
+                    continue;
                 String msg = messages.get(0);
                 switch (msg) {
                     case "login":

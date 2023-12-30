@@ -215,7 +215,9 @@ public class ServerScreenBase extends Pane {
 
         // Schedule the task to update counts every 10 seconds
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(this::updateCountsFromDatabase, 0, 10, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::updateCountsFromDatabase, 0, 5, TimeUnit.SECONDS);
+        serviceThread.startConnectionDB();
+        initializeBD();
     }
 
     private void updateCountsFromDatabase() {
@@ -263,7 +265,7 @@ public class ServerScreenBase extends Pane {
     }
 
     private void startService() {
-        serviceThread.startConnectionDB();
+        
         if (started) {
             serviceThread.resume();
         } else {
@@ -296,6 +298,15 @@ public class ServerScreenBase extends Pane {
 //                    System.err.println("Error connecting to the database: " + ex.getMessage());
 //        }
 //    }
+
+    private void initializeBD() {
+        try {
+            PreparedStatement pst1 = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=FALSE");
+            int res = pst1.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(ServerScreenBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }
 
 

@@ -19,9 +19,11 @@ import javafx.stage.StageStyle;
  * @author s
  */
 public class TicTacToeServer extends Application {
+
     private static double xOffset;
     private static double yOffset;
     Parent root;
+
     @Override
     public void start(Stage stage) throws Exception {
         
@@ -43,21 +45,23 @@ public class TicTacToeServer extends Application {
         stage.setScene(scene);
         stage.show();
     }
+
     @Override
-    public void stop(){
+    public void stop() {
         try {
             ((ServerScreenBase) root).stopService();
-            if(ServerConnection.con != null)
+            if (ServerConnection.con != null) {
                 ServerConnection.con.close();
+            }
         } catch (SQLException ex) {
             Logger.getLogger(TicTacToeServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         launch(args);
     }
-    
 }

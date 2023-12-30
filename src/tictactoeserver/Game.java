@@ -14,6 +14,8 @@ import java.net.Socket;
 import com.google.gson.*;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +42,10 @@ public class Game extends Thread{
         final int diagonalLeft = 0;
         final int diagonalRight = 1;
             int movesCount = 0; // sum of moves 
+        
+           PreparedStatement updatePlayerXScore;
+                      PreparedStatement updatePlayerOScore;
+
 
             int[] winnerData;
             protected final boolean[][] boxEnabled; // array that hold enablle or disable to labels
@@ -57,56 +63,97 @@ public class Game extends Thread{
     private PlayerHandler playerO;
     ArrayList<Integer> filledBoxes;
     Gson gson;
+    private PreparedStatement enterPlayerX;
+    private PreparedStatement enterPlayerO;
+    private PreparedStatement exitPlayerX;
+    private PreparedStatement exitPlayerO;
+    
     
     private Game(){
-                       boxEnabled = new boolean[3][3];
-                       
+        boxEnabled = new boolean[3][3];
+
         for (int i = 0; i < 3; i++) {
-                            System.out.println("first loop");
+            System.out.println("first loop");
 
             for (int j = 0; j < 3; j++) {
-                                            System.out.println("second loop");
+                System.out.println("second loop");
 
                 boxEnabled[i][j] = true;
             }
         }
-                winnerData = new int[2];
-                playerCases = new int[2][8];
+        winnerData = new int[2];
+        playerCases = new int[2][8];
         filledBoxes=new ArrayList<Integer>();
     }
     public Game(PlayerHandler playerX, PlayerHandler playerO){
         this();
+//        System.out.println("Inside Game Class");
+//        while(true){
+//            if(playerX.startedGame && playerO.startedGame)
+//                break;
+//        }
+//        System.out.println("Starting...");
         this.playerX=playerX;
         this.playerO=playerO;
-       playerX.suspend();
-       playerO.suspend();
+//       playerX.suspend();
+//       playerO.suspend();
+        try {
+            enterPlayerX = ServerConnection.con.prepareStatement("UPDATE Player SET Isplaying=TRUE  WHERE Username=?");
+            enterPlayerO = ServerConnection.con.prepareStatement("UPDATE Player SET Isplaying=TRUE  WHERE Username=?");
+            exitPlayerX = ServerConnection.con.prepareStatement("UPDATE Player SET Isplaying=FALSE  WHERE Username=?");
+            exitPlayerO = ServerConnection.con.prepareStatement("UPDATE Player SET Isplaying=FALSE  WHERE Username=?");
+            enterPlayerX.setString(1, playerX.playerData.getUserName());
+            enterPlayerO.setString(1,playerO.playerData.getUserName() );
+            exitPlayerX.setString(1, playerX.playerData.getUserName());
+            exitPlayerO.setString(1,playerO.playerData.getUserName() );
+            enterPlayerX.executeUpdate();
+            enterPlayerO.executeUpdate();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+        }
         gson = new GsonBuilder().create();
        // playerX.ps.println(gson.toJson(playerO.playerData));
        // playerO.ps.println(gson.toJson(playerX.playerData));
       // playerX.ps.println("you are x");
        //playerO.ps.println("you are o");
-        playerX.ps.println(gson.toJson(new Move('x',0)));
-        playerO.ps.println(gson.toJson(new Move('o',0)));
-                System.out.println("test");
+//        playerX.ps.println(gson.toJson(new Move('x',0)));
+//        playerO.ps.println(gson.toJson(new Move('o',0)));
+//                System.out.println("test");
 
         this.start();
         
     }
     @Override 
     public void run(){
+        System.out.println("Inside Game Class");
+        while (true) {
+            System.out.println("Player1  " + playerX.startedGame);
+            System.out.println("Player2  " + playerO.startedGame);
+            if (playerX.startedGame && playerO.startedGame) {
+                break;
+            }
+        }
+        System.out.println("Starting...");
+        playerX.suspend();
+        playerO.suspend();
+        playerX.ps.println(gson.toJson(new Move('x',0)));
+        playerO.ps.println(gson.toJson(new Move('o',0)));
+        System.out.println("test");
         while(true){
             try {
                 String msg = playerX.dis.readLine();
                 System.out.println("after read line");
-                                System.out.println(msg);
+                System.out.println(msg);
                 if(!msg.startsWith("{")){
-                    msg = "{"+msg;
+                    msg = "{"+msg; // TODO Bougs here not readable code
                 }
                 Move move = gson.fromJson(msg, Move.class);
                 
                 if(takeMove('x',move)==2){
                     playerX.resume();
                     playerO.resume();
+                    resetFlags();
                     break;
                 }
                 msg = playerO.dis.readLine();
@@ -117,10 +164,12 @@ public class Game extends Thread{
                 if(takeMove('o',move)==2){
                     playerX.resume();
                     playerO.resume();
+                    resetFlags();
                     break;
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+                //handle exception by closing game and set other as winner 
             }
         }
     }
@@ -138,9 +187,14 @@ public class Game extends Thread{
            //     sendMove(playerX.ps,new Move('d',11));
            //     sendMove(playerO.ps,new Move('d',11));
            gameState = 11;
-           sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),11));
-                      sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),11));
-
+           sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),11,10));
+                      sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),11,10));
+                        try {
+                            exitPlayerX.executeUpdate();
+                            exitPlayerO.executeUpdate();
+                        } catch (SQLException ex) {
+                            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+                        }
            return 2;
                     } else {
                      //  isX = !isX;
@@ -151,8 +205,20 @@ public class Game extends Thread{
              //   sendMove(playerX.ps,new Move('w',10));
              //   sendMove(playerO.ps,new Move('l',12));
              gameState = 12;
-              sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),10));
-                      sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),12));
+             double score=playerX.playerData.getScore();
+             score++;
+                try {
+                    updatePlayerXScore = ServerConnection.con.prepareStatement("UPDATE Player SET SCORE= ? WHERE Username= ?");
+                    updatePlayerXScore.setString(2, playerX.playerData.getUserName());
+                    updatePlayerXScore.setLong(1, Double.valueOf(score).longValue());
+                    updatePlayerXScore.executeUpdate();
+                     exitPlayerX.executeUpdate();
+                            exitPlayerO.executeUpdate();
+                } catch (SQLException ex) {
+                    Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+                }
+              sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),10,winnerData[1]));
+                      sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),12,winnerData[1]));
            return 2;
                 } else if (winnerData[0] == 1) {
                                         System.out.println("player o is winning");
@@ -160,8 +226,20 @@ public class Game extends Thread{
              //       sendMove(playerX.ps,new Move('l',12));
              //       sendMove(playerO.ps,new Move('w',10));
              gameState = 10;
-              sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),12));
-              sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),10));
+             double score=playerO.playerData.getScore();
+             score++;
+              try {
+                    updatePlayerOScore = ServerConnection.con.prepareStatement("UPDATE Player SET SCORE= ? WHERE Username= ?");
+                    updatePlayerOScore.setString(2, playerO.playerData.getUserName());
+                    updatePlayerOScore.setLong(1, Double.valueOf(score).longValue());
+                    updatePlayerOScore.executeUpdate();
+                     exitPlayerX.executeUpdate();
+                            exitPlayerO.executeUpdate();
+                } catch (SQLException ex) {
+                    Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+                }
+              sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),12,winnerData[1]));
+              sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),10,winnerData[1]));
            return 2;
                 }
 
@@ -288,7 +366,13 @@ public class Game extends Thread{
             case 7:i=2; j=0; break;
             case 8:i=2; j=1; break;
             case 9:i=2; j=2; break;
-
         }
+    }
+    private void resetFlags(){
+        System.out.println("Resetting Flags");
+        playerX.isPlayer1 = false;
+        playerO.isPlayer1 = false;
+        playerX.startedGame = false;
+        playerO.startedGame = false;
     }
 }

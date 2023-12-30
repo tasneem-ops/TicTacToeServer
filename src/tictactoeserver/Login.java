@@ -37,6 +37,9 @@ public class Login {
             System.out.println("Login generated SHA-1 is:  " + hashedInputPassword);
             if(hashedSavedPassword.equals(hashedInputPassword)){
                 Player player = getDataFromResultSet(rs);
+                PreparedStatement pst1 = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=TRUE,Isplaying=FALSE  WHERE Username= ?");
+                pst1.setString(1,player.getUserName());
+                int res = pst1.executeUpdate();
                 return player;
             }
         }

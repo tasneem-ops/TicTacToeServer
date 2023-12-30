@@ -90,8 +90,13 @@ public class PlayerHandler extends Thread {
         }
     }
 
-    void closeConnections() {
+   void closeConnections() {
         try {
+            ArrayList<String> response = new ArrayList<>();
+            response.add("closed");
+            Gson gson = new GsonBuilder().create();
+            String responseJSon = gson.toJson(response);
+            ps.println(responseJSon);
             socket.close();
             dis.close();
             ps.close();
@@ -100,6 +105,8 @@ public class PlayerHandler extends Thread {
             e.printStackTrace();
         }
     }
+
+
 
     private void loginUser(String loginData) {
         try {

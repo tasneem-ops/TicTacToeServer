@@ -219,13 +219,19 @@ public class ServerScreenBase extends Pane {
         }
     }
     
-    public void stopService(){
+     public void stopService(){
+//        ArrayList<String> responseServer = new ArrayList<>();
+//                responseServer.add("closed");
+//                Gson gsonServer = new GsonBuilder().create();
+//                String responseServerJson = gsonServer.toJson(responseServer);
+//        PlayerHandler.sendRequest(responseServerJson);
         serviceThread.suspend();
         PlayerHandler.playersConnections.forEach(player -> {
+           
             player.closeConnections();
         });
     }
-    public void startConnectionDB(){
+     public void startConnectionDB(){
         try {
             DriverManager.registerDriver(new ClientDriver());
             con = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");

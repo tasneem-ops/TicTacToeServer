@@ -19,12 +19,25 @@ import javafx.stage.StageStyle;
  * @author s
  */
 public class TicTacToeServer extends Application {
-    
+    private static double xOffset;
+    private static double yOffset;
     Parent root;
     @Override
     public void start(Stage stage) throws Exception {
-        root = new ServerScreenBase();
         
+        root = new ServerScreenBase();
+        //to can move the screen  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        root.setOnMousePressed(event -> {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        });
+
+        root.setOnMouseDragged(event -> {
+            stage.setX(event.getScreenX() - xOffset);
+            stage.setY(event.getScreenY() - yOffset);
+        });
+        //to can move the screen  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
         Scene scene = new Scene(root);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);

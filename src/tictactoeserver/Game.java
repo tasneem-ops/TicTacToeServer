@@ -14,6 +14,8 @@ import java.net.Socket;
 import com.google.gson.*;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +42,10 @@ public class Game extends Thread{
         final int diagonalLeft = 0;
         final int diagonalRight = 1;
             int movesCount = 0; // sum of moves 
+        
+           PreparedStatement updatePlayerXScore;
+                      PreparedStatement updatePlayerOScore;
+
 
             int[] winnerData;
             protected final boolean[][] boxEnabled; // array that hold enablle or disable to labels
@@ -57,6 +63,11 @@ public class Game extends Thread{
     private PlayerHandler playerO;
     ArrayList<Integer> filledBoxes;
     Gson gson;
+    private PreparedStatement enterPlayerX;
+    private PreparedStatement enterPlayerO;
+    private PreparedStatement exitPlayerX;
+    private PreparedStatement exitPlayerO;
+    
     
     private Game(){
                        boxEnabled = new boolean[3][3];
@@ -78,6 +89,21 @@ public class Game extends Thread{
         this();
         this.playerX=playerX;
         this.playerO=playerO;
+        try {
+            enterPlayerX = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=TRUE  WHERE Username=?");
+            enterPlayerO = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=TRUE  WHERE Username=?");
+            exitPlayerX = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=TRUE,Isplaying=FALSE  WHERE Username=?");
+            exitPlayerO = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=TRUE,Isplaying=FALSE  WHERE Username=?");
+            enterPlayerX.setString(0, playerX.playerData.getUserName());
+            enterPlayerO.setString(0,playerO.playerData.getUserName() );
+            exitPlayerX.setString(0, playerX.playerData.getUserName());
+            exitPlayerO.setString(0,playerO.playerData.getUserName() );
+            enterPlayerX.executeUpdate();
+            enterPlayerO.executeUpdate();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+        }
        playerX.suspend();
        playerO.suspend();
         gson = new GsonBuilder().create();
@@ -138,9 +164,14 @@ public class Game extends Thread{
            //     sendMove(playerX.ps,new Move('d',11));
            //     sendMove(playerO.ps,new Move('d',11));
            gameState = 11;
-           sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),11));
-                      sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),11));
-
+           sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),11,10));
+                      sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),11,10));
+                        try {
+                            exitPlayerX.executeUpdate();
+                            exitPlayerO.executeUpdate();
+                        } catch (SQLException ex) {
+                            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+                        }
            return 2;
                     } else {
                      //  isX = !isX;
@@ -151,8 +182,18 @@ public class Game extends Thread{
              //   sendMove(playerX.ps,new Move('w',10));
              //   sendMove(playerO.ps,new Move('l',12));
              gameState = 12;
-              sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),10));
-                      sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),12));
+             double score=playerX.playerData.getScore();
+             score++;
+                try {
+                    updatePlayerXScore = ServerConnection.con.prepareStatement("UPDATE Player SET SCORE="+score+" WHERE Username=" + playerX.playerData.getUserName());
+                    updatePlayerXScore.executeUpdate();
+                     exitPlayerX.executeUpdate();
+                            exitPlayerO.executeUpdate();
+                } catch (SQLException ex) {
+                    Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+                }
+              sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),10,winnerData[1]));
+                      sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),12,winnerData[1]));
            return 2;
                 } else if (winnerData[0] == 1) {
                                         System.out.println("player o is winning");
@@ -160,8 +201,18 @@ public class Game extends Thread{
              //       sendMove(playerX.ps,new Move('l',12));
              //       sendMove(playerO.ps,new Move('w',10));
              gameState = 10;
-              sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),12));
-              sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),10));
+             double score=playerO.playerData.getScore();
+             score++;
+              try {
+                    updatePlayerOScore = ServerConnection.con.prepareStatement("UPDATE Player SET SCORE="+score+" WHERE Username=" + playerO.playerData.getUserName());
+                    updatePlayerOScore.executeUpdate();
+                     exitPlayerX.executeUpdate();
+                            exitPlayerO.executeUpdate();
+                } catch (SQLException ex) {
+                    Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+                }
+              sendMove(playerX.ps,new Move(move.getSign(),move.getBox(),12,winnerData[1]));
+              sendMove(playerO.ps,new Move(move.getSign(),move.getBox(),10,winnerData[1]));
            return 2;
                 }
 
@@ -288,7 +339,6 @@ public class Game extends Thread{
             case 7:i=2; j=0; break;
             case 8:i=2; j=1; break;
             case 9:i=2; j=2; break;
-
         }
     }
 }

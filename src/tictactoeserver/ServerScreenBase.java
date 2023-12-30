@@ -1,5 +1,7 @@
 package tictactoeserver;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -7,6 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -90,6 +93,10 @@ public class ServerScreenBase extends Pane {
         lablOnlineUsers.setTextFill(javafx.scene.paint.Color.WHITE);
         lablOnlineUsers.setFont(new Font("Segoe UI Bold", 25.0));
         lablOnlineUsers.setOnMouseClicked((e)->{
+            System.out.println(playersConnections.size()+"this is the size of the array");
+            System.out.println(playersConnections.get(0).toString());
+                        System.out.println(playersConnections.get(1).toString());
+
             Game game = new Game(playersConnections.get(0), playersConnections.get(1));
         });
 
@@ -227,14 +234,13 @@ public class ServerScreenBase extends Pane {
 //        PlayerHandler.sendRequest(responseServerJson);
         serviceThread.suspend();
         PlayerHandler.playersConnections.forEach(player -> {
-           
             player.closeConnections();
         });
     }
      public void startConnectionDB(){
         try {
             DriverManager.registerDriver(new ClientDriver());
-            con = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
+            con = DriverManager.getConnection("jdbc:derby://localhost:1527/DBforTicTacToe", "a", "a");
         } catch (SQLException ex) {
             Logger.getLogger(ServerScreenBase.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -30,6 +30,8 @@ public class PlayerHandler extends Thread {
 
     ArrayList<Player> avaliablePlayerList;
     static PreparedStatement psAvaliableUsers;
+    static PreparedStatement psUpdateOnlineUsers;
+
     Player playerData;
     DataInputStream dis;
     PrintStream ps;
@@ -41,6 +43,7 @@ public class PlayerHandler extends Thread {
     }
 
     public PlayerHandler(Socket socket) {
+       
         avaliablePlayerList = new ArrayList<Player>();
         try {
             this.socket = socket;
@@ -50,6 +53,7 @@ public class PlayerHandler extends Thread {
             Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         playersConnections.add(this);
+        System.out.println("Player Handler is Created");
         this.start();
     }
 
@@ -61,6 +65,7 @@ public class PlayerHandler extends Thread {
                 msgArray = dis.readLine();
                 Gson gson = new GsonBuilder().create();
                 ArrayList<String> messages = gson.fromJson(msgArray, ArrayList.class);
+                System.out.println(messages);
                 String msg = messages.get(0);
                 switch (msg) {
                     case "login":
@@ -80,6 +85,9 @@ public class PlayerHandler extends Thread {
                         break;
                     case "logout":
                         logout();
+                        break;
+                    case "refuse":
+                        sendRefuseMessage(messages);
                         break;
                 }
 
@@ -120,6 +128,9 @@ public class PlayerHandler extends Thread {
                 response.add(playerJson);
                 String responseJSon = gson.toJson(response);
                 ps.println(responseJSon);
+                playerData = new Player(player);
+                System.out.println("Player: " + player.toString());
+                System.out.println("PlayerData: " + playerData.toString());
             } else {
                 ArrayList<String> response = new ArrayList<>();
                 response.add("login");
@@ -138,31 +149,62 @@ public class PlayerHandler extends Thread {
 
     private void signUpUser(String playerData) {
         try {
-            SignUp.signUpUser(playerData);
-            System.out.println("signupresponse server");
-            ArrayList<String> response = new ArrayList<>();
+            int result = SignUp.signUpUser(playerData);
+            if(result == 0){
+                System.out.println("signupresponse server");
+                ArrayList<String> response = new ArrayList<>();
                 response.add("signup");
                 response.add("Success");
                 Gson gson = new GsonBuilder().create();
                 String responseJSon = gson.toJson(response);
                 ps.println(responseJSon);
+            }
+            else if(result == 1){
+                System.out.println("signupresponse server");
+                ArrayList<String> response = new ArrayList<>();
+                response.add("signup");
+                response.add("Duplicate Username");
+                Gson gson = new GsonBuilder().create();
+                String responseJSon = gson.toJson(response);
+                ps.println(responseJSon);
+            }
+            else if(result == 2){
+                System.out.println("signupresponse server");
+                ArrayList<String> response = new ArrayList<>();
+                response.add("signup");
+                response.add("Duplicate Email");
+                Gson gson = new GsonBuilder().create();
+                String responseJSon = gson.toJson(response);
+                ps.println(responseJSon);
+            }
+            
         } catch (NoSuchAlgorithmException ex) {
             ex.printStackTrace();
         } catch (SQLException ex) {
             ex.printStackTrace();
+            ArrayList<String> response = new ArrayList<>();
+            response.add("signup");
+            response.add("Failure");
+            Gson gson = new GsonBuilder().create();
+            String responseJSon = gson.toJson(response);
+            ps.println(responseJSon);
         }
     }
 
     private void requestToPlay(ArrayList<String> request) {
         String player2UserName = request.get(1);
+        System.out.println("Size of Vector:" + playersConnections.size());
         playersConnections.forEach(player -> {
-            if (player.playerData.getUserName().equals(player2UserName)) {
-                ArrayList<String> response = new ArrayList<>();
-                response.add("request");
-                response.add(this.playerData.getUserName());
-                Gson gson = new GsonBuilder().create();
-                String responseJSon = gson.toJson(response);
-                player.ps.println(responseJSon);
+            if(player.playerData != null){
+                if (player.playerData.getUserName().equals(player2UserName)) {
+                    System.out.println("Found Player with username:" + player2UserName);
+                    ArrayList<String> response = new ArrayList<>();
+                    response.add("request");
+                    response.add(this.playerData.getUserName());
+                    Gson gson = new GsonBuilder().create();
+                    String responseJSon = gson.toJson(response);
+                    player.ps.println(responseJSon);
+                }
             }
         });
     }
@@ -170,20 +212,12 @@ public class PlayerHandler extends Thread {
     private void startGame(ArrayList<String> request) {
         String player1UserName = request.get(1);
         playersConnections.forEach(player -> {
-            if (player.playerData.getUserName().equals(player1UserName)) {
-                ArrayList<String> response1 = new ArrayList<>();
-                ArrayList<String> response2 = new ArrayList<>();
-                response1.add("startGame");
-                response2.add("startGame");
-                response1.add(this.playerData.getUserName());
-                response2.add(player.playerData.getUserName());
-                Gson gson = new GsonBuilder().create();
-                String responseJSon1 = gson.toJson(response1);
-                String responseJSon2 = gson.toJson(response2);
-                player.ps.println(responseJSon1);
-                this.ps.println(responseJSon2);
-
+            if(player.playerData != null){
+                if (player.playerData.getUserName().equals(player1UserName)) {
+                sendStartGame(player, this);
+                updateInDB(player, this);
                 Game game = new Game(player, this);
+            }
             }
         });
     }
@@ -200,7 +234,7 @@ public class PlayerHandler extends Thread {
                 p1.setPlayerImage(rs.getString("playerimage"));
                 p1.setScore(rs.getLong("score"));
                 avaliablePlayerList.add(p1);
-               
+
             }
             System.out.println("Available users are" + avaliablePlayerList.toString());
            ArrayList<String> response = new ArrayList<>();
@@ -209,15 +243,77 @@ public class PlayerHandler extends Thread {
                 String playerJson = gson.toJson(avaliablePlayerList);
                 response.add(playerJson);
                 String responseJSon = gson.toJson(response);
+                System.out.println("Gson Response " + responseJSon);
                 ps.println(responseJSon);
         } catch (SQLException ex) {
             Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    private void sendRefuseMessage(ArrayList<String> request){
+        String player1UserName = request.get(1);
+        playersConnections.forEach(player -> {
+            if(player.playerData != null){
+                if (player.playerData.getUserName().equals(player1UserName)) {
+                    ArrayList<String> response = new ArrayList<>();
+                    response.add("refuse");
+                    response.add(this.playerData.getUserName());
+                    Gson gson = new GsonBuilder().create();
+                    String responseJSon = gson.toJson(response);
+                    player.ps.println(responseJSon);
+                }
+            }
+        });
+    }
 
     private void logout() {
+        if(playerData!=null){
+        try {
+                        psUpdateOnlineUsers = ServerConnection.con.prepareStatement("UPDATE Player SET AVAILABLE=FALSE,Isplaying=FALSE  WHERE Username=" + playerData.getUserName());
+            psUpdateOnlineUsers.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        }
+        playersConnections.remove(playersConnections.get(playersConnections.indexOf(this)));
+        
+//         ArrayList<String> requestArray = new ArrayList<String>();
+//            requestArray.add("exit");
+//            Gson gson = new GsonBuilder().create();
+//            String request = gson.toJson(requestArray);
+//      
+        ps.println("exit");
+        closeConnections();
         //TODO: put logout code here
         //Recommended: put most of logic in seperate class with static methods
     }
-
+    private void sendStartGame(PlayerHandler player1, PlayerHandler player2){
+        ArrayList<String> response1 = new ArrayList<>();
+        ArrayList<String> response2 = new ArrayList<>();
+        response1.add("startGame");
+        response2.add("startGame");
+        response1.add(player2.playerData.getUserName());
+        response2.add(player1.playerData.getUserName());
+        Gson gson = new GsonBuilder().create();
+        String responseJSon1 = gson.toJson(response1);
+        String responseJSon2 = gson.toJson(response2);
+        player1.ps.println(responseJSon1);
+        player2.ps.println(responseJSon2);
+    }
+    
+    private void updateInDB(PlayerHandler player1, PlayerHandler player2){
+        try {
+            PreparedStatement pst1 = ServerConnection.con.prepareStatement("update PLAYER SET ISPLAYING = ? WHERE USERNAME = ?");
+            PreparedStatement pst2 = ServerConnection.con.prepareStatement("update PLAYER SET ISPLAYING = ? WHERE USERNAME = ?");
+            pst1.setBoolean(1, true);
+            pst1.setString(2, player1.playerData.getUserName());
+            pst2.setBoolean(1, true);
+            pst2.setString(2, player2.playerData.getUserName());
+            int res1 = pst1.executeUpdate();
+            int res2 = pst2.executeUpdate();
+            System.out.println("Columns Updated:  "+ res1 + ""+ res2);
+        } catch (SQLException ex) {
+            Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
 }

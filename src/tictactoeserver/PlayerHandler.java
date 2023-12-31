@@ -64,6 +64,8 @@ public class PlayerHandler extends Thread {
             String msgArray;
             try {
                 msgArray = dis.readLine();
+                if(msgArray.endsWith("}"))
+                    continue;
                 Gson gson = new GsonBuilder().create();
                 ArrayList<String> messages = gson.fromJson(msgArray, ArrayList.class);
                 System.out.println(messages);
@@ -232,6 +234,7 @@ public class PlayerHandler extends Thread {
 
     private void getAvailableUsers() {
         System.out.println("Getting Available Users");
+        avaliablePlayerList.clear();
         try {
             psAvaliableUsers = ServerConnection.con.prepareStatement("SELECT * FROM PLAYER WHERE AVAILABLE=TRUE");
             ResultSet rs = psAvaliableUsers.executeQuery();
@@ -302,6 +305,8 @@ public class PlayerHandler extends Thread {
         response2.add("startGame");
         response1.add(player2.playerData.getUserName());
         response2.add(player1.playerData.getUserName());
+        response1.add(Long.valueOf(player2.playerData.getScore()).toString());
+        response2.add(Long.valueOf(player1.playerData.getScore()).toString());
         Gson gson = new GsonBuilder().create();
         String responseJSon1 = gson.toJson(response1);
         String responseJSon2 = gson.toJson(response2);

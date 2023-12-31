@@ -26,7 +26,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javax.xml.bind.DatatypeConverter;
-import org.apache.derby.jdbc.ClientDriver;
 import static tictactoeserver.PlayerHandler.playersConnections;
 import static tictactoeserver.ServerConnection.con;
 

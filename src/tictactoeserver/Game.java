@@ -143,6 +143,8 @@ public class Game extends Thread{
         while(true){
             try {
                 String msg = playerX.dis.readLine();
+                if(msg.endsWith("]"))
+                    continue;
                 System.out.println("after read line");
                 System.out.println(msg);
                 if(!msg.startsWith("{")){
@@ -157,6 +159,8 @@ public class Game extends Thread{
                     break;
                 }
                 msg = playerO.dis.readLine();
+                if(msg.endsWith("]"))
+                    continue;
                 if(!msg.startsWith("{")){
                     msg = "{"+msg;
                 }

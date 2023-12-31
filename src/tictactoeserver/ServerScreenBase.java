@@ -98,7 +98,7 @@ public class ServerScreenBase extends Pane {
             System.out.println(playersConnections.get(0).toString());
             System.out.println(playersConnections.get(1).toString());
 
-            Game game = new Game(playersConnections.get(0), playersConnections.get(1));
+//            Game game = new Game(playersConnections.get(0), playersConnections.get(1));
         });
 
         btnStartStop.setLayoutX(249.0);

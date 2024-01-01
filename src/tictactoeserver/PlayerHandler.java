@@ -315,19 +315,24 @@ public class PlayerHandler extends Thread {
     }
     
     private void updateInDB(PlayerHandler player1, PlayerHandler player2){
-        try {
-            PreparedStatement pst1 = ServerConnection.con.prepareStatement("update PLAYER SET ISPLAYING = ? WHERE USERNAME = ?");
-            PreparedStatement pst2 = ServerConnection.con.prepareStatement("update PLAYER SET ISPLAYING = ? WHERE USERNAME = ?");
-            pst1.setBoolean(1, true);
-            pst1.setString(2, player1.playerData.getUserName());
-            pst2.setBoolean(1, true);
-            pst2.setString(2, player2.playerData.getUserName());
-            int res1 = pst1.executeUpdate();
-            int res2 = pst2.executeUpdate();
-            System.out.println("Columns Updated:  "+ res1 + ""+ res2);
-        } catch (SQLException ex) {
-            Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        new Thread(){
+            public void run(){
+                try {
+                PreparedStatement pst1 = ServerConnection.con.prepareStatement("update PLAYER SET ISPLAYING = ? WHERE USERNAME = ?");
+                PreparedStatement pst2 = ServerConnection.con.prepareStatement("update PLAYER SET ISPLAYING = ? WHERE USERNAME = ?");
+                pst1.setBoolean(1, true);
+                pst1.setString(2, player1.playerData.getUserName());
+                pst2.setBoolean(1, true);
+                pst2.setString(2, player2.playerData.getUserName());
+                int res1 = pst1.executeUpdate();
+                int res2 = pst2.executeUpdate();
+                System.out.println("Columns Updated:  "+ res1 + ""+ res2);
+                } catch (SQLException ex) {
+                    Logger.getLogger(PlayerHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }.start();
+        
     }
     
     public void startGameOnServer(String playerUsername){

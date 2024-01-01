@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Game extends Thread{
+    int errorCounter;
     private static final int BOX00=1;
     private static final int BOX01=2;
     private static final int BOX02=3;
@@ -126,8 +127,18 @@ public class Game extends Thread{
     }
     @Override 
     public void run(){
+        errorCounter=0;
         System.out.println("Inside Game Class");
         while (true) {
+            errorCounter++;
+            if(errorCounter>50000){
+             playerX.ps.println(gson.toJson(new Move('x',404,404,404)));
+             playerO.ps.println(gson.toJson(new Move('o',404,404,404)));
+         playerX.resume();
+                    playerO.resume();
+                    resetFlags();
+               stop();         
+            }
             System.out.println("Player1  " + playerX.startedGame);
             System.out.println("Player2  " + playerO.startedGame);
             if (playerX.startedGame && playerO.startedGame) {
@@ -141,6 +152,7 @@ public class Game extends Thread{
         playerO.ps.println(gson.toJson(new Move('o',0)));
         System.out.println("test");
         while(true){
+            
             try {
                 String msg = playerX.dis.readLine();
                 if(msg.endsWith("]"))
